@@ -3,11 +3,17 @@ using System.Collections;
 
 public class PlayerObject : MonoBehaviour
 {
+
 	public GameObject nicknameTextMeshPrefab;
 	public Vector3 NicknamePosition;
 
 	[HideInInspector]
 	public TextMesh nicknameTextMesh;
+
+	public Texture InventoryTexture;
+
+	[HideInInspector]
+	public Inventory inventory;
 
 	private GameObject objectNicknameMesh;
 
@@ -16,6 +22,9 @@ public class PlayerObject : MonoBehaviour
 	private Animator anim;
 	private bool isGrounded = false;
 
+	[HideInInspector]
+	public float curMaxSpeed;
+
 	float move = 0;
 
 	void Awake()
@@ -23,30 +32,39 @@ public class PlayerObject : MonoBehaviour
 		GameObject objectNicknameMesh = Instantiate(nicknameTextMeshPrefab) as GameObject;
 		nicknameTextMesh = objectNicknameMesh.GetComponent<TextMesh>();
 	}
-
-	//void OnDisable()
-	//{
-	//	Destroy (objectNicknameMesh as Object);
-	//}
 	
 	private void Start()
 	{
+		curMaxSpeed = maxSpeed;
+
 		anim = GetComponent<Animator>();
 
-		if(networkView.isMine)
-			networkView.RPC("UpdateNickName", RPCMode.OthersBuffered, nicknameTextMesh.text);
+		if (networkView.isMine) 
+		{
+			networkView.RPC ("UpdateNickName", RPCMode.OthersBuffered, nicknameTextMesh.text);
+			inventory = new Inventory();
+
+			inventory.SpriteInventory = InventoryTexture;
+		}
 	}
 
 	private void Update()
 	{
+		if (networkView.isMine) 
+		{
+			inventory.updateKeyboard ();
+			inventory.procBonusStart (this);
+		}
 
 
-
-		               if (Mathf.Abs (rigidbody2D.velocity.y) > 0) {
-						isGrounded = false;
-				} else {
+		if (Mathf.Abs (rigidbody2D.velocity.y) > 0) 
+		{
+			isGrounded = false;
+		} 
+		else 
+		{
 			isGrounded = true;
-				}
+		}
 
 		anim.SetBool ("Ground", isGrounded);
 		anim.SetFloat ("vSpeed", rigidbody2D.velocity.y);
@@ -55,7 +73,7 @@ public class PlayerObject : MonoBehaviour
 						if (isGrounded) {
 								move = Input.GetAxis ("Horizontal");
 				
-								rigidbody2D.velocity = new Vector2 (move * maxSpeed, rigidbody2D.velocity.y);
+								rigidbody2D.velocity = new Vector2 (move * curMaxSpeed, rigidbody2D.velocity.y);
 
 								if (Input.GetKeyDown (KeyCode.Space)) {
 										rigidbody2D.AddForce (new Vector2 (0, 600));				
@@ -73,6 +91,8 @@ public class PlayerObject : MonoBehaviour
 		else if (move < 0 && isFacingRight)
 				Flip ();
 
+		if(networkView.isMine)
+			inventory.procBonusEnd (this);
 	}
 
 	private void Flip()
@@ -132,5 +152,13 @@ public class PlayerObject : MonoBehaviour
 	void UpdateNickName(string newNickname)
 	{
 		nicknameTextMesh.text = newNickname;
+	}
+
+	void OnGUI()
+	{
+		if (networkView.isMine) 
+		{
+			inventory.DrawGUI ();
+		}
 	}
 }
