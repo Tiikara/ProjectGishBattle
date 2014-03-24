@@ -47,6 +47,7 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\Scripts\Bonus.cs" />
+     <Compile Include="Assets\Scripts\BonusFood.cs" />
      <Compile Include="Assets\Scripts\BonusObject.cs" />
      <Compile Include="Assets\Scripts\BonusSpeed.cs" />
      <Compile Include="Assets\Scripts\CameraMovement.cs" />

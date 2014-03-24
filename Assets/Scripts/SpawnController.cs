@@ -6,10 +6,11 @@ public class SpawnController : MonoBehaviour {
 
 	public GameObject Character;
 
-	void OnPlayerConnected(NetworkPlayer aPlayer)
-	{
+	GameObject[] spawnPoints;
 
-		//networkView.RPC("UpdateNickName", RPCMode.All, nicknameTextMesh.text);
+	void Start()
+	{
+		spawnPoints = GameObject.FindGameObjectsWithTag ("Respawn");
 	}
 
 	void OnPlayerDisconnected(NetworkPlayer playerID)
@@ -31,19 +32,17 @@ public class SpawnController : MonoBehaviour {
 
 	void OnServerInitialized()
 	{
-		spawnPlayer();
+		InitClient();
 	}
 	
 	void OnConnectedToServer()
 	{
-		spawnPlayer();
+		InitClient();
 	}
 	
-	private void spawnPlayer()
+	private void InitClient()
 	{
-		GameObject[] spawnPoints = GameObject.FindGameObjectsWithTag ("Respawn");
-		
-		GameObject player = Network.Instantiate(Character, spawnPoints[0].transform.position, Quaternion.identity, 0) as GameObject;
+		GameObject player = Network.Instantiate(Character, Vector3.zero, Quaternion.identity, 0) as GameObject;
 		
 		PlayerObject playerObject = player.GetComponent ("PlayerObject") as PlayerObject;
 
@@ -55,5 +54,35 @@ public class SpawnController : MonoBehaviour {
 		CameraMovement cameraMove =  camera.GetComponent ("CameraMovement") as CameraMovement;
 		
 		cameraMove.PlayerClient = player as GameObject;
+
+		SpawnPlayer (player);
+	}
+
+	public void SpawnPlayer(GameObject player)
+	{
+		Vector2 curSpawnPos = Vector2.zero;
+
+		float curDistance = float.PositiveInfinity;
+
+		GameObject[] players = GameObject.FindGameObjectsWithTag ("Player");
+
+		foreach (GameObject spawn in spawnPoints) 
+		{
+			foreach(GameObject otherPlayer in players)
+			{
+				Vector2 playerPos = otherPlayer.transform.position;
+				Vector2 spawnPos = spawn.transform.position;
+				float distance = Vector2.Distance(playerPos, spawnPos);
+
+				if(distance < curDistance)
+				{
+					curDistance = distance;
+					curSpawnPos = spawnPos;
+				}
+			}
+		}
+
+		player.transform.position = new Vector3(curSpawnPos.x, curSpawnPos.y, 0.0f);
+
 	}
 }

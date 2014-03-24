@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 public class SpawnBonusController : MonoBehaviour {
 
+	public GameObject BonusFood;
 	public GameObject[] Bonuses;
 
 	public float respawnTime;
@@ -47,9 +48,14 @@ public class SpawnBonusController : MonoBehaviour {
 			if(i == 11)
 				return;
 
-			int indexBonus = Random.Range(0, Bonuses.Length);
+			GameObject objectSpawn;
 
-			usedSpawns[indexSpawn] = Network.Instantiate(Bonuses[indexBonus],spawns[indexSpawn].transform.position,Quaternion.identity, 1) as GameObject;
+			if(Random.Range(0,100) < 75) // 25 %chance
+				objectSpawn = BonusFood;
+			else
+				objectSpawn = Bonuses[Random.Range(0, Bonuses.Length)];
+
+			usedSpawns[indexSpawn] = Network.Instantiate(objectSpawn,spawns[indexSpawn].transform.position,Quaternion.identity, 1) as GameObject;
 		}
 	}
 }
