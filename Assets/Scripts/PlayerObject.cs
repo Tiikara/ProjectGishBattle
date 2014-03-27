@@ -4,18 +4,16 @@ using System.Collections;
 public class PlayerObject : MonoBehaviour
 {
 
-	public GameObject nicknameTextMeshPrefab;
-	public Vector3 NicknamePosition;
+	public GameObject PlayerInfoPrefab;
+	public Vector3 PlayerInfoPosition;
 
 	[HideInInspector]
-	public TextMesh nicknameTextMesh;
+	public PlayerInfo playerInfo;
 
 	public Texture InventoryTexture;
 
 	[HideInInspector]
 	public Inventory inventory;
-
-	private GameObject objectNicknameMesh;
 
 	public float maxSpeed = 10f; 
 	private bool isFacingRight = true;
@@ -25,12 +23,18 @@ public class PlayerObject : MonoBehaviour
 	[HideInInspector]
 	public float curMaxSpeed;
 
+	private Vector3 minScale;
+
+	float curhealth;
+
 	float move = 0;
+
+	float lastTimeHealth;
 
 	void Awake()
 	{
-		GameObject objectNicknameMesh = Instantiate(nicknameTextMeshPrefab) as GameObject;
-		nicknameTextMesh = objectNicknameMesh.GetComponent<TextMesh>();
+		GameObject objectPlayerInfo = Instantiate(PlayerInfoPrefab) as GameObject;
+		playerInfo = objectPlayerInfo.GetComponent<PlayerInfo>();
 	}
 	
 	private void Start()
@@ -41,11 +45,17 @@ public class PlayerObject : MonoBehaviour
 
 		if (networkView.isMine) 
 		{
-			networkView.RPC ("UpdateNickName", RPCMode.OthersBuffered, nicknameTextMesh.text);
+			networkView.RPC ("UpdateNickName", RPCMode.OthersBuffered, playerInfo.GetNickname());
 			inventory = new Inventory();
 
 			inventory.SpriteInventory = InventoryTexture;
 		}
+
+		minScale = new Vector3(1.756218f,1.756218f,1f);
+
+		health = 0.25f;
+
+		lastTimeHealth = Time.time;
 	}
 
 	private void Update()
@@ -67,7 +77,6 @@ public class PlayerObject : MonoBehaviour
 		}
 
 		anim.SetBool ("Ground", isGrounded);
-		anim.SetFloat ("vSpeed", rigidbody2D.velocity.y);
 
 		if (networkView.isMine) {
 						if (isGrounded) {
@@ -82,7 +91,7 @@ public class PlayerObject : MonoBehaviour
 				} else
 						SyncedMovement ();
 
-		nicknameTextMesh.transform.position = transform.position + NicknamePosition;
+		playerInfo.transform.position = transform.position + PlayerInfoPosition;
 
 		anim.SetFloat("Speed", Mathf.Abs(move));
 
@@ -90,6 +99,12 @@ public class PlayerObject : MonoBehaviour
 				Flip ();
 		else if (move < 0 && isFacingRight)
 				Flip ();
+
+		if (networkView.isMine && Time.time - lastTimeHealth > 0.5f) 
+		{
+			health -= 0.005f;
+			lastTimeHealth = Time.time;
+		}
 
 		if(networkView.isMine)
 			inventory.procBonusEnd (this);
@@ -111,7 +126,9 @@ public class PlayerObject : MonoBehaviour
 	private float syncTime = 0f;
 	private Vector3 syncStartPosition = Vector3.zero;
 	private Vector3 syncEndPosition = Vector3.zero;
-	
+
+	float syncHealth;
+
 	void OnSerializeNetworkView(BitStream stream, NetworkMessageInfo info)
 	{
 		Vector3 syncPosition = Vector3.zero;
@@ -125,6 +142,7 @@ public class PlayerObject : MonoBehaviour
 			stream.Serialize(ref syncVelocity);
 
 			stream.Serialize(ref move);
+			stream.Serialize(ref curhealth);
 		}
 		else
 		{
@@ -132,6 +150,10 @@ public class PlayerObject : MonoBehaviour
 			stream.Serialize(ref syncVelocity);
 
 			stream.Serialize(ref move);
+			syncHealth = health;
+			stream.Serialize(ref syncHealth);
+
+			health = syncHealth;
 
 			syncTime = 0f;
 			syncDelay = Time.time - lastSynchronizationTime;
@@ -148,10 +170,40 @@ public class PlayerObject : MonoBehaviour
 		rigidbody2D.transform.position = Vector3.Lerp(syncStartPosition, syncEndPosition, syncTime / syncDelay);
 	}
 
+	public void Increase()
+	{
+		health +=  0.1f;
+	}
+
+	public float health
+	{
+		set 
+		{ 
+			if(value > 0.99f)
+				curhealth = 0.99f;
+			else if(value < 0f)
+				curhealth = 0f;
+			else
+				curhealth = value;
+
+			float sign;
+
+			if(transform.localScale.x > 0f)
+				sign = 1f;
+			else
+				sign = -1f;
+
+			transform.localScale = new Vector3(minScale.x*(curhealth+1f)*sign,minScale.y*(curhealth+1f),minScale.z);
+			playerInfo.SetHealth (health);
+		}
+
+		get { return curhealth; }
+	}
+
 	[RPC]
 	void UpdateNickName(string newNickname)
 	{
-		nicknameTextMesh.text = newNickname;
+		playerInfo.SetNickname (newNickname);
 	}
 
 	void OnGUI()

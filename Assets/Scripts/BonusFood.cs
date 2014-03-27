@@ -9,7 +9,7 @@ public class BonusFood : MonoBehaviour {
 		{
 			if(other.networkView.isMine)
 			{
-					//increase
+					other.gameObject.GetComponent<PlayerObject>().Increase();
 					Network.RemoveRPCsInGroup (1);
 					Network.Destroy (gameObject);
 			}

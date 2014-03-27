@@ -21,7 +21,7 @@ public class SpawnController : MonoBehaviour {
 		{
 			if(player.GetComponent<NetworkView>().owner == playerID)
 			{
-				Destroy(player.GetComponent<PlayerObject>().nicknameTextMesh);
+				Destroy(player.GetComponent<PlayerObject>().playerInfo.gameObject);
 				break;
 			}
 		}
@@ -46,8 +46,10 @@ public class SpawnController : MonoBehaviour {
 		
 		PlayerObject playerObject = player.GetComponent ("PlayerObject") as PlayerObject;
 
-		playerObject.nicknameTextMesh.text = 
-			(GameObject.Find("NetworkManager").GetComponent("NetworkManager") as NetworkManager).nickname;
+		playerObject.playerInfo.SetNickname 
+			(  
+			 (GameObject.Find("NetworkManager").GetComponent("NetworkManager") as NetworkManager).nickname
+			 );
 		
 		GameObject camera = GameObject.FindGameObjectWithTag("MainCamera");
 		
