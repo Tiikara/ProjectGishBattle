@@ -15,13 +15,13 @@ public class PlayerInfo : MonoBehaviour {
 
 	void Awake()
 	{
-		//nickname = nicknameObject.GetComponent<TextMesh>();
-		//lifeline = healthlineObject.GetComponent<SpriteRenderer> ();
-		//value = valueObject.GetComponent<TextMesh> ();
+		nickname = nicknameObject.GetComponent<TextMesh>();
+		lifeline = healthlineObject.GetComponent<SpriteRenderer> ();
+		value = valueObject.GetComponent<TextMesh> ();
 
-		nickname = GetComponentInChildren<TextMesh>();
-		lifeline = GetComponentInChildren<SpriteRenderer>();
-		value = GetComponentInChildren<TextMesh>();
+		//nickname = GetComponentInChildren<TextMesh>();
+		//lifeline = GetComponentInChildren<SpriteRenderer>();
+		//value = GetComponentInChildren<TextMesh>();
 
 		standartPosLifeline = lifeline.transform.localPosition;
 		standartScaleLifeline = lifeline.transform.localScale;

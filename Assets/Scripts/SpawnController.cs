@@ -57,26 +57,36 @@ public class SpawnController : MonoBehaviour {
 		
 		cameraMove.PlayerClient = player as GameObject;
 
-		SpawnPlayer (player);
+		//SpawnPlayer (player);
 	}
 
 	public void SpawnPlayer(GameObject player)
 	{
 		Vector2 curSpawnPos = Vector2.zero;
 
-		float curDistance = float.PositiveInfinity;
+		float curDistance = float.NegativeInfinity;
 
 		GameObject[] players = GameObject.FindGameObjectsWithTag ("Player");
+
+		if (players.Length == 1) 
+		{
+			int spawnId = Random.Range(0, spawnPoints.Length);
+			player.transform.position = new Vector3(spawnPoints[spawnId].transform.position.x, spawnPoints[spawnId].transform.position.y, 0f);
+			return;
+		}
 
 		foreach (GameObject spawn in spawnPoints) 
 		{
 			foreach(GameObject otherPlayer in players)
 			{
+				if(otherPlayer == player)
+					continue;
+
 				Vector2 playerPos = otherPlayer.transform.position;
 				Vector2 spawnPos = spawn.transform.position;
 				float distance = Vector2.Distance(playerPos, spawnPos);
 
-				if(distance < curDistance)
+				if(distance > curDistance)
 				{
 					curDistance = distance;
 					curSpawnPos = spawnPos;
