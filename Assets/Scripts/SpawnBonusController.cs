@@ -9,6 +9,10 @@ public class SpawnBonusController : MonoBehaviour {
 
 	public float respawnTime;
 
+	public float minDistanceSpawn;
+
+	public int maxBonuses;
+
 	private float curTimeRespawn = 0.0f;
 
 	GameObject[] spawns;
@@ -32,30 +36,55 @@ public class SpawnBonusController : MonoBehaviour {
 		{
 			curTimeRespawn = 0.0f;
 
-			Random.seed = (int)Time.time;
-			int indexSpawn = 0;
+			spawnBonus();
+		}
+	}
 
-			int i;
+	void spawnBonus()
+	{
+		GameObject[] players = GameObject.FindGameObjectsWithTag ("Player");
 
-			for(i=0;i<11;i++)
+		float curDistance = float.NegativeInfinity;
+
+		int index = 0;
+
+		int countUsedSpawn = 0;
+
+		for (int i=0; i<spawns.Length; i++) 
+		{
+			if(usedSpawns[i] != null)
 			{
-				indexSpawn = Random.Range(0, spawns.Length);
-
-				if(usedSpawns[indexSpawn] == null)
-					break;
+				countUsedSpawn++;
+				continue;
 			}
 
-			if(i == 11)
-				return;
-
-			GameObject objectSpawn;
-
-			if(Random.Range(0,100) < 75) // 25 %chance
-				objectSpawn = BonusFood;
-			else
-				objectSpawn = Bonuses[Random.Range(0, Bonuses.Length)];
-
-			usedSpawns[indexSpawn] = Network.Instantiate(objectSpawn,spawns[indexSpawn].transform.position,Quaternion.identity, 1) as GameObject;
+			foreach(GameObject player in players)
+			{
+				Vector2 playerPos = player.transform.position;
+				Vector2 spawnPos = spawns[i].transform.position;
+				float distance = Vector2.Distance(playerPos, spawnPos);
+			
+				if(distance > curDistance)
+				{
+					curDistance = distance;
+					index = i;
+				}
+			}
 		}
+
+		if (curDistance < minDistanceSpawn ||
+		    countUsedSpawn == spawns.Length ||
+		    countUsedSpawn == maxBonuses)
+						return;
+
+		GameObject objectSpawn;
+		
+		if(Random.Range(0,100) < 75) // 25 %chance
+			objectSpawn = BonusFood;
+		else
+			objectSpawn = Bonuses[Random.Range(0, Bonuses.Length)];
+		
+		usedSpawns[index] = Network.Instantiate(objectSpawn,spawns[index].transform.position,Quaternion.identity, 1) as GameObject;
+
 	}
 }

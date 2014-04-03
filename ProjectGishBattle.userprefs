@@ -1,13 +1,13 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\PlayerObject.cs">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="MonoDevelop.Default" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\SpawnBonusController.cs">
     <Files>
-      <File FileName="Assets\Scripts\PlayerObject.cs" Line="117" Column="11" />
+      <File FileName="Assets\Scripts\PlayerObject.cs" Line="288" Column="2" />
       <File FileName="Assets\Scripts\BonusObject.cs" Line="1" Column="1" />
       <File FileName="Assets\Scripts\BonusFood.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\PlayerInfo.cs" Line="30" Column="14" />
-      <File FileName="Assets\Scripts\SpawnController.cs" Line="60" Column="5" />
-      <File FileName="Assets\Scripts\SpawnBonusController.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\PlayerInfo.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\SpawnController.cs" Line="77" Column="3" />
+      <File FileName="Assets\Scripts\SpawnBonusController.cs" Line="59" Column="5" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
